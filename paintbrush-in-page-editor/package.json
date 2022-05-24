@@ -1,0 +1,61 @@
+{
+  "name": "paintbrush-in-page-editor",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@codemirror/autocomplete": "^0.20.1",
+    "@codemirror/collab": "^0.20.0",
+    "@codemirror/commands": "^0.20.0",
+    "@codemirror/lang-css": "^0.20.0",
+    "@codemirror/lang-html": "^0.20.0",
+    "@codemirror/lang-javascript": "^0.20.0",
+    "@codemirror/lang-markdown": "^0.20.0",
+    "@codemirror/lang-python": "^0.20.0",
+    "@codemirror/lang-sql": "^0.20.0",
+    "@codemirror/language": "^0.20.1",
+    "@codemirror/lint": "^0.20.2",
+    "@codemirror/search": "^0.20.1",
+    "@codemirror/state": "^0.20.0",
+    "@codemirror/view": "^0.20.4",
+    "@lezer/common": "^0.16.0",
+    "@lezer/highlight": "^0.16.0",
+    "@lezer/markdown": "^0.16.0",
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^13.2.0",
+    "@testing-library/user-event": "^13.5.0",
+    "htm": "^3.1.1",
+    "immer": "^9.0.14",
+    "lodash": "^4.17.21",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "react-scripts": "5.0.1",
+    "styled-components": "^5.3.5",
+    "uuid": "^8.3.2",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "(rm -rf ../extension/in-page-editor-build/); react-scripts build && cp -R build ../extension/in-page-editor-build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "homepage": "./",
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

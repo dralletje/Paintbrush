@@ -1,0 +1,11 @@
+body {
+  padding-bottom: 16px;
+}
+
+* {
+  margin: 0;
+}
+
+.cm-cursor {
+  border-left: 1.2px solid var(--cursor-color) !important;
+}
