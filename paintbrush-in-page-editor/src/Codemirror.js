@@ -12,7 +12,7 @@ import {
   placeholder,
   lineNumbers,
 } from "@codemirror/view";
-import { defaultKeymap } from "@codemirror/commands";
+import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
 import { tags } from "@lezer/highlight";
 import {
   indentOnInput,
@@ -70,9 +70,13 @@ export let CodeMirror = ({
   </${as}>`;
 };
 
-export let Extension = ({ extension }) => {
-  // console.log(`extension:`, extension);
-
+/**
+ * @param {{
+ *  extension: import("@codemirror/state").Extension,
+ *  deps?: Array<any>,
+ * }} props
+ */
+export let Extension = ({ extension, deps = [extension] }) => {
   // Compartments: https://codemirror.net/6/examples/config/
 
   let dispatch_ref = React.useContext(codemirror_editorview_context);
@@ -95,7 +99,7 @@ export let Extension = ({ extension }) => {
     dispatch_ref.current?.({
       effects: compartment.reconfigure(extension),
     });
-  }, [extension]);
+  }, deps);
 
   return null;
 };
@@ -188,11 +192,11 @@ export const pluto_syntax_colors = HighlightStyle.define(
   ],
   {
     all: { color: `var(--cm-editor-text-color)` },
-    // scope: javascriptLanguage,
+    scope: cssLanguage,
   }
 );
 
-let useEditorView = ({ code }) => {
+export let useEditorView = ({ code }) => {
   let state = React.useMemo(() => {
     const usesDarkTheme = window.matchMedia(
       "(prefers-color-scheme: dark)"
@@ -203,9 +207,8 @@ let useEditorView = ({ code }) => {
 
       extensions: [
         EditorView.theme({}, { dark: usesDarkTheme }),
-        lineNumbers(),
         highlightSpecialChars(),
-        // history(),
+        history(),
         drawSelection(),
         EditorState.allowMultipleSelections.of(true),
         // Multiple cursors with `alt` instead of the default `ctrl` (which we use for go to definition)
@@ -230,47 +233,12 @@ let useEditorView = ({ code }) => {
         EditorState.tabSize.of(2),
         indentUnit.of("\t"),
 
-        keymap.of([
-          ...defaultKeymap,
-          // ...historyKeymap,
-          ...foldKeymap,
-        ]),
-        // syntaxHighlighting(pluto_syntax_colors),
+        keymap.of([...defaultKeymap, ...historyKeymap, ...foldKeymap]),
         syntaxHighlighting(pluto_syntax_colors_css),
-        placeholder("Enter cell code..."),
         EditorView.lineWrapping,
       ],
     });
   }, []);
 
   return state;
-};
-
-/**
- * @param {{
- *  code: string,
- *  children: React.ReactNode,
- * }} props
- */
-export const CellInput = ({ code, children }) => {
-  let editor_state = useEditorView({
-    code: code,
-  });
-
-  let on_change_extension = useMemo(() => {
-    return EditorView.updateListener.of((update) => {
-      if (update.docChanged) {
-        // console.log(`update.docChanged:`, update.docChanged);
-      }
-    });
-  }, []);
-
-  return html`<${CodeMirror}
-    as="pluto-input"
-    editor_state=${editor_state}
-    extension=${[on_change_extension]}
-  >
-    <${Extension} extension=${on_change_extension} />
-    ${children}
-  </${CodeMirror}`;
 };

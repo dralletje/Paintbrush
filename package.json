@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "description": "Brrrrrrush go brrrrrrr",
   "main": "index.js",
+  "private": true,
+  "workspaces": [
+    "paintbrush-in-page-editor",
+    "packages/*"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "web-ext run -s extension --url \"https://youtu.be/Yocja_N5s1I\""

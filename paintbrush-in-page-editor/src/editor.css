@@ -4,20 +4,6 @@
 @import url("https://cdn.jsdelivr.net/npm/@fontsource/roboto-mono@4.4.5/500.css");
 @import url("https://cdn.jsdelivr.net/npm/@fontsource/roboto-mono@4.4.5/700.css");
 
-/* @import url("https://fonts.googleapis.com/css?family=Alegreya+Sans:400,400i,500,500i,700,700i&display=swap&subset=cyrillic,cyrillic-ext,greek,greek-ext,latin-ext,vietnamese"); */
-@import url("https://cdn.jsdelivr.net/npm/@fontsource/alegreya-sans@4.4.5/400.css");
-@import url("https://cdn.jsdelivr.net/npm/@fontsource/alegreya-sans@4.4.5/500.css");
-@import url("https://cdn.jsdelivr.net/npm/@fontsource/alegreya-sans@4.4.5/700.css");
-@import url("https://cdn.jsdelivr.net/npm/@fontsource/alegreya-sans@4.4.5/400-italic.css");
-@import url("https://cdn.jsdelivr.net/npm/@fontsource/alegreya-sans@4.4.5/500-italic.css");
-@import url("https://cdn.jsdelivr.net/npm/@fontsource/alegreya-sans@4.4.5/700-italic.css");
-
-/* @import url("./juliamono.css");
-@import url("./vollkorn.css"); */
-/* @import url("https://fonts.googleapis.com/css2?family=Lato&display=swap"); */
-@import url("https://cdn.jsdelivr.net/npm/@fontsource/lato@4.4.5/400.css");
-@import url("https://cdn.jsdelivr.net/npm/@fontsource/lato@4.4.5/400-italic.css");
-
 @import url("./dark_color.css");
 
 /* VARIABLES */
@@ -35,27 +21,26 @@
     Roboto, Oxygen-Sans, Cantarell, Helvetica, Arial, "Apple Color Emoji",
     "Segoe UI Emoji", "Segoe UI Symbol", system-ui, sans-serif;
 
-  color-scheme: light dark;
+  /* color-scheme: light dark; */
 }
 
 /* GENERAL PAGE LAYOUT */
-html {
+/* html {
   font-size: 17px;
-}
+} */
 
 * {
   box-sizing: border-box;
 }
 
-body {
+/* body {
   overscroll-behavior: contain;
   margin: 0px;
   overflow-anchor: none;
   overflow-x: hidden;
   position: relative;
   min-height: 100vh;
-  background-color: var(--main-bg-color);
-}
+} */
 
 pluto-editor {
   flex: 1 1 auto;
