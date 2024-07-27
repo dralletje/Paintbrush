@@ -1,7 +1,4 @@
 import React, { useLayoutEffect, useRef, useMemo } from "react";
-import _ from "lodash";
-
-import { html } from "htm/react";
 
 import { EditorState, Compartment, StateEffect } from "@codemirror/state";
 import {
@@ -28,7 +25,6 @@ import { css, cssLanguage } from "@codemirror/lang-css";
 import { closeBrackets } from "@codemirror/autocomplete";
 
 import { collab } from "@codemirror/collab";
-import "./editor.css";
 
 let codemirror_editorview_context = React.createContext(null);
 
@@ -63,11 +59,13 @@ export let CodeMirror = ({
     };
   }, [dom_node_ref, editor_state]);
 
-  return html`<${as} ref=${dom_node_ref}>
-    <${codemirror_editorview_context.Provider} value=${dispatch_ref}>
-      ${children}
-    </${codemirror_editorview_context.Provider}>
-  </${as}>`;
+  return (
+    <div ref={dom_node_ref}>
+      <codemirror_editorview_context.Provider value={dispatch_ref}>
+        {children}
+      </codemirror_editorview_context.Provider>
+    </div>
+  );
 };
 
 /**

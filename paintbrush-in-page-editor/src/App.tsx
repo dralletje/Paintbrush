@@ -4,33 +4,36 @@ import styled from "styled-components";
 import { html } from "htm/react";
 import React from "react";
 import immer from "immer";
-import { v4 as uuidv4 } from "uuid";
 
 import { indentLess, indentMore } from "@codemirror/commands";
 import { Facet, Prec } from "@codemirror/state";
 import { EditorView, keymap, placeholder } from "@codemirror/view";
-import { groupBy, isEqual } from "lodash";
+import { groupBy, isEqual } from "lodash-es";
 
-import "./editor.css";
 import "./dark_color.css";
 import "./App.css";
 import { debug_syntax_plugin } from "./Codemirror/debug_syntax_plugin";
+import { dot_gutter } from "./Codemirror/dot-gutter";
 import {
   ActiveSelector,
   pkgBubblePlugin,
 } from "./Codemirror/CssSelectorHighlight";
+import { EyeIcon, EyeOffIcon, XCircleIcon } from "lucide-react";
 
 let Cell = styled.div`
   /* border-radius: 20px 20px 0 0; */
+
+  border-bottom: solid 1px #242424;
 
   &.modified {
     /* outline: solid 4px #f0f0f0; */
     /* background-color: #432b00; */
     background-color: #052f1e;
+    --main-bg-color: #052f1e;
   }
 
   &.disabled {
-    filter: contrast(0.4);
+    opacity: 0.5;
   }
 `;
 
@@ -46,48 +49,26 @@ let Partytime = () => {
   return null;
 };
 
-let AddCellButtonStyle = styled.button`
-  all: unset;
-
-  padding-bottom: 3px;
-  padding-left: 12px;
-  padding-right: 12px;
-  margin: 3px;
-
-  cursor: pointer;
-  border-radius: 8px;
-  background-color: transparent;
-  transition: background-color 0.2s;
-
-  & .hidden-till-hover {
-    font-size: 0.9rem;
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
-  &:hover .hidden-till-hover {
-    opacity: 1;
-  }
-
-  &:hover {
-    background-color: #ffffff1f;
-  }
-`;
 let AddCellButton = ({ onClick }) => {
   return (
-    <AddCellButtonStyle onClick={onClick}>
-      + <span className="hidden-till-hover">add cell</span>
-    </AddCellButtonStyle>
+    <div className="flex flex-row justify-center py-2 sticky bottom-0 bg-[--main-bg-color]">
+      <button
+        className="px-4 py-[2px] text-white/60 bg-white/0 hover:bg-white/10 transition-colors text-xs rounded-full"
+        onClick={onClick}
+      >
+        add style
+      </button>
+    </div>
   );
 };
 
-/** @type {Facet<string, string>} */
-let CellIdFacet = Facet.define({
+let CellIdFacet: Facet<string, string> = Facet.define({
   combine: (x) => x[0],
 });
 
 let empty_cell = () => {
   return {
-    id: uuidv4(),
+    id: crypto.randomUUID(),
     code: "",
   };
 };
@@ -114,7 +95,15 @@ function useEvent(handler) {
  *  children: React.ReactNode,
  * }} props
  */
-export const CellInput = ({ value, onChange, children }) => {
+export const CellInput = ({
+  value,
+  onChange,
+  children,
+}: {
+  value: string;
+  onChange?: (code: string) => void;
+  children: React.ReactNode;
+}) => {
   let editor_state = useEditorView({
     code: value,
   });
@@ -130,6 +119,7 @@ export const CellInput = ({ value, onChange, children }) => {
   return (
     <CodeMirror as="pluto-input" editor_state={editor_state}>
       <Extension extension={on_change_extension} />
+
       {children}
     </CodeMirror>
   );
@@ -138,47 +128,29 @@ export const CellInput = ({ value, onChange, children }) => {
 let NotebookHeader = styled.div`
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  padding: 16px 16px;
-  /* position: sticky; */
-  top: 0;
-  z-index: 1000000;
-  background-color: var(--main-bg-color);
-`;
+  justify-content: center;
+  align-items: center;
+  padding: 4px 6px;
+  color: rgb(161, 111, 255);
+  background-color: rgb(45, 16, 93);
+  border-radius: 10px 10px 0px 0px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  position: sticky;
+  top: 0px;
 
-/**
- * @typedef Cell
- * @type {{
- *  id: string,
- *  code: string,
- *  disabled?: boolean,
- *  collapsed?: boolean,
- *  name?: string,
- * }}
- */
-
-let CellHeaderButton = styled.button`
-  all: unset;
-  border-radius: 100px;
-  background-color: transparent;
-  transition: background-color 0.2s;
-  padding: 2px 16px;
-
-  &:hover {
-    background-color: #ffffff1f;
+  h1 {
+    font-size: 12px;
+    font-weight: bold;
   }
 `;
 
-let NameInput = styled.input.attrs({ type: "text" })`
-  all: unset;
-  font-size: 1rem;
-  padding: 4px 8px;
-  color: white;
-  width: 100%;
-
-  margin-bottom: 4px;
-  font-size: 1.3rem;
-`;
+type Cell = {
+  id: string;
+  code: string;
+  disabled?: boolean;
+  collapsed?: boolean;
+  name?: string;
+};
 
 let classes = (obj) => {
   return Object.entries(obj)
@@ -188,10 +160,9 @@ let classes = (obj) => {
 };
 
 function Editor() {
-  let [currently_saved_cells, set_currently_saved_cells] = React.useState(
-    /** @type {Array<Cell>?} */ (null)
-  );
-  let [cells, set_cells] = React.useState(/** @type {Array<Cell>?} */ (null));
+  let [currently_saved_cells, set_currently_saved_cells] =
+    React.useState<Array<Cell> | null>(null);
+  let [cells, set_cells] = React.useState<Array<Cell> | null>(null);
 
   React.useEffect(() => {
     window.parent.postMessage({ type: "load" }, "*");
@@ -268,8 +239,7 @@ function Editor() {
     return null;
   }
 
-  /** @param {Array<Cell>} cells */
-  let send_cells = (cells) => {
+  let send_cells = (cells: Array<Cell>) => {
     window.parent.postMessage(
       {
         type: "css",
@@ -284,6 +254,7 @@ function Editor() {
 
   return (
     <div
+      className="overscroll-contain"
       onKeyDown={(event) => {
         if (event.key === "s" && event.metaKey) {
           event.preventDefault();
@@ -292,19 +263,62 @@ function Editor() {
         }
       }}
     >
-      <NotebookHeader>
-        <h1>Paintbrush</h1>
+      <NotebookHeader className="z-50">
+        <div>
+          <button
+            className="block"
+            onClick={() => {
+              window.parent.postMessage({ type: "close" }, "*");
+            }}
+          >
+            <XCircleIcon size={12} />
+          </button>
+        </div>
 
-        <button
-          onClick={() => {
-            window.parent.postMessage(
-              { type: "toggle-horizontal-position" },
-              "*"
-            );
-          }}
+        <h1
+          style={{ lineHeight: "normal" }}
+          className="flex-1 flex flex-row justify-center"
         >
-          s
-        </button>
+          Paintbrush
+        </h1>
+
+        <div>
+          {cells.every((x) => x.collapsed) ? (
+            <button
+              className="block"
+              onClick={() => {
+                let new_cells = cells.map((x) => {
+                  return {
+                    ...x,
+                    collapsed: false,
+                  };
+                });
+                set_cells(new_cells);
+                set_currently_saved_cells(new_cells);
+                window.parent.postMessage({ type: "save", cells }, "*");
+              }}
+            >
+              <EyeIcon size={12} />
+            </button>
+          ) : (
+            <button
+              className="block"
+              onClick={() => {
+                let new_cells = cells.map((x) => {
+                  return {
+                    ...x,
+                    collapsed: true,
+                  };
+                });
+                set_cells(new_cells);
+                set_currently_saved_cells(new_cells);
+                window.parent.postMessage({ type: "save", cells }, "*");
+              }}
+            >
+              <EyeOffIcon size={12} />
+            </button>
+          )}
+        </div>
       </NotebookHeader>
 
       <Partytime />
@@ -323,19 +337,12 @@ function Editor() {
               })}
             >
               <div
-                style={{
-                  display: "flex",
-                  flexDirection: "row",
-                  alignItems: "center",
-                  // paddingTop: 8,
-                  position: "sticky",
-                  // top: 38 + 16 + 16,
-                  top: 0,
-                  backgroundColor: `var(--main-bg-color)`,
-                  zIndex: 10000,
-                }}
+                className="flex flex-row items-center sticky top-[23px] z-10 pt-1"
+                style={{ backgroundColor: `var(--main-bg-color)` }}
               >
-                <NameInput
+                <input
+                  type="text"
+                  className="text-lg flex-1 px-2 py-1 outline-none bg-transparent text-white font-semibold placeholder:text-white/20"
                   placeholder="my browser, my style"
                   value={name}
                   onChange={({ target: { value } }) => {
@@ -346,37 +353,43 @@ function Editor() {
                     );
                   }}
                 />
-                <CellHeaderButton
-                  style={{
-                    color: disabled ? "red" : "rgba(255,255,255,.5)",
-                  }}
-                  onClick={() => {
-                    let new_cells = cells.map((x, i) =>
-                      i === cell_index ? { ...x, disabled: !x.disabled } : x
-                    );
-                    send_cells(new_cells);
-                    set_cells(new_cells);
-                  }}
-                >
-                  {disabled ? "disabled" : "active"}
-                </CellHeaderButton>
-                <CellHeaderButton
-                  style={{
-                    color: collapsed
-                      ? "rgba(255,255,255,1)"
-                      : "rgba(255,255,255,.5)",
-                  }}
-                  onClick={() => {
-                    let new_cells = cells.map((x, i) =>
-                      i === cell_index ? { ...x, collapsed: !x.collapsed } : x
-                    );
-                    send_cells(new_cells);
-                    set_cells(new_cells);
-                  }}
-                >
-                  {collapsed ? "open" : "close"}
-                </CellHeaderButton>
-                <div style={{ width: 8 }} />
+
+                <div className="flex flex-row gap-1 pr-2 items-center">
+                  <button
+                    className="transition-colors bg-white/0 hover:bg-white/10 text-xs px-2 rounded-full"
+                    style={{
+                      color: disabled ? "red" : "rgba(255,255,255,.5)",
+                    }}
+                    onClick={() => {
+                      let new_cells = cells.map((x, i) =>
+                        i === cell_index ? { ...x, disabled: !x.disabled } : x
+                      );
+                      send_cells(new_cells);
+                      set_currently_saved_cells(new_cells);
+                      set_cells(new_cells);
+                    }}
+                  >
+                    {disabled ? "disabled" : "active"}
+                  </button>
+                  <button
+                    className="transition-colors bg-white/0 hover:bg-white/10 text-xs px-2 rounded-full"
+                    style={{
+                      color: collapsed
+                        ? "rgba(255,255,255,1)"
+                        : "rgba(255,255,255,.5)",
+                    }}
+                    onClick={() => {
+                      let new_cells = cells.map((x, i) =>
+                        i === cell_index ? { ...x, collapsed: !x.collapsed } : x
+                      );
+                      send_cells(new_cells);
+                      set_currently_saved_cells(new_cells);
+                      set_cells(new_cells);
+                    }}
+                  >
+                    {collapsed ? "open" : "close"}
+                  </button>
+                </div>
               </div>
 
               <div style={{ display: collapsed ? "none" : "block" }}>
@@ -384,6 +397,7 @@ function Editor() {
                   <Extension extension={placeholder("Style away!")} />
                   <Extension extension={cell_keymap} />
                   <Extension extension={CellIdFacet.of(id)} />
+                  <Extension extension={dot_gutter} />
                   {/* <Extension extension={debug_syntax_plugin} /> */}
                   <Extension extension={pkgBubblePlugin()} />
                   <Extension
@@ -429,18 +443,14 @@ function Editor() {
                 </CellInput>
               </div>
             </Cell>
-            <AddCellButton
-              onClick={() => {
-                set_cells([
-                  ...cells.slice(0, cell_index + 1),
-                  empty_cell(),
-                  ...cells.slice(cell_index + 1),
-                ]);
-              }}
-            />
           </React.Fragment>
         );
       })}
+      <AddCellButton
+        onClick={() => {
+          set_cells([...cells, empty_cell()]);
+        }}
+      />
     </div>
   );
 }
@@ -451,7 +461,7 @@ let App = () => {
   // The parent page will then set pointer-events: none on the iframe, and call `maybe enable again?` on mousemove
   // to give us a chance to take back control.
   React.useEffect(() => {
-    let handler = (/** @type {MouseEvent} */ event) => {
+    let handler = (event) => {
       let element = document.elementFromPoint(event.clientX, event.clientY);
       if (element == null || element.tagName === "HTML") {
         window.parent.postMessage({ type: "disable me!" }, "*");
@@ -461,7 +471,7 @@ let App = () => {
     return () => window.removeEventListener("mousemove", handler);
   });
   React.useEffect(() => {
-    let handler = (/** @type {MessageEvent} */ message) => {
+    let handler = (message: MessageEvent) => {
       if (message.source !== window.parent) return;
       if (message.data?.type === "maybe enable again?") {
         let element = document.elementFromPoint(message.data.x, message.data.y);
@@ -476,26 +486,28 @@ let App = () => {
 
   return (
     <div>
-      <div
+      <AppContainer
         style={{
-          position: `fixed`,
           right: 16,
-          bottom: 0,
-          height: `max(60vh, min(500px, 100vh))`,
-          width: `max(20vw, 400px)`,
-          overflow: "auto",
-
-          backgroundColor: `black`,
-          boxShadow: `black 0px 0px 11px 0px, white 0px 0px 8px 0px`,
-
-          // transform: `translateX(calc(100% + 16px))`,
-          transition: `transform 0.5s`,
+          bottom: -16,
         }}
       >
         <Editor />
-      </div>
+      </AppContainer>
     </div>
   );
 };
+
+let AppContainer = styled.div`
+  position: fixed;
+  height: max(60vh, min(500px, 100vh));
+  width: max(20vw, 400px);
+  overflow: auto;
+  background-color: var(--main-bg-color);
+  outline: rgba(255, 255, 255, 0.2) solid 1px;
+  border-radius: 10px;
+  padding-bottom: 16px;
+  box-shadow: rgba(255, 255, 255, 0.04) 0px 0px 20px;
+`;
 
 export default App;

@@ -16,7 +16,7 @@ import {
   ViewUpdate,
 } from "@codemirror/view";
 import { iterate_with_cursor } from "./iterate_with_cursor.js";
-import { ContextMenu } from "../ContextMenu.js";
+import { ContextMenu } from "../ContextMenu.tsx";
 
 /**
  * @typedef SelectorSpec

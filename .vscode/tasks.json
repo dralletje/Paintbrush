@@ -1,0 +1,18 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "dev",
+      "path": "paintbrush-in-page-editor",
+      "problemMatcher": [],
+      "label": "npm: start - paintbrush-in-page-editor",
+      "detail": "Run vite",
+      "isBackground": true,
+      "icon": {
+        "id": "browser",
+        "color": "terminal.ansiGreen"
+      }
+    }
+  ]
+}

@@ -267,6 +267,8 @@
         } else if (message.data?.type === "enable me!") {
           console.debug("MESSAGE FROM EDITOR:", "enable me!");
           injection.style.pointerEvents = "auto";
+        } else if (message.data?.type === "close") {
+          injection.remove();
         } else if (message.data?.type === "scroll-into-view") {
           console.debug("MESSAGE FROM EDITOR:", "scroll-into-view");
           let { selector } = message.data;

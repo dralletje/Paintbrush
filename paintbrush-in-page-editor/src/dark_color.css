@@ -2,7 +2,7 @@
   :root {
     --image-filters: invert(1) hue-rotate(180deg) contrast(0.8);
     --out-of-focus-opacity: 0.5;
-    --main-bg-color: hsl(0deg 0% 12%);
+    --main-bg-color: #181818;
     --rule-color: rgba(255, 255, 255, 0.15);
     --kbd-border-color: #222222;
     --header-bg-color: hsl(30deg 3% 16%);

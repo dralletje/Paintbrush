@@ -9,6 +9,7 @@
     "packages/*"
   ],
   "scripts": {
+    "build": "(cd extension; zip -r ../extension.zip .)",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "web-ext run -s extension --url \"https://youtu.be/Yocja_N5s1I\""
   },
