@@ -25,5 +25,6 @@
   "homepage": "https://github.com/dralletje/Painbrush#readme",
   "dependencies": {
     "webextension-polyfill-ts": "^0.26.0"
-  }
+  },
+  "packageManager": "pnpm@9.14.4"
 }
