@@ -8,11 +8,10 @@ document
       currentWindow: true,
     });
 
-    browser.scripting.executeScript({
+    let x = await browser.scripting.executeScript({
       target: { tabId: tab.id },
-      files: ["Contentscripts/editor-in-page.js"],
+      files: ["/Contentscripts/editor-in-page.js"],
     });
-
     window.close();
   });
 

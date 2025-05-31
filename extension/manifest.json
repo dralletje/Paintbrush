@@ -6,7 +6,14 @@
 
   "background": {
     "type": "module",
-    "service_worker": "Background/Background.js"
+    "service_worker": "Background/Background.js",
+    "scripts": ["Background/Background.js"]
+  },
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "paintbrush@dral.dev"
+    }
   },
 
   "content_scripts": [
@@ -19,7 +26,6 @@
   ],
 
   "action": {
-    "browser_style": true,
     "chrome_style": true,
     "default_icon": {
       "32": "Images/Brush.png",
@@ -38,7 +44,11 @@
 
   "web_accessible_resources": [
     {
-      "resources": ["in-page-editor-build/*", "BrowserAction/Images/*"],
+      "resources": [
+        "in-page-editor-build/*",
+        "BrowserAction/Images/*",
+        "Contentscripts/*"
+      ],
       "matches": ["<all_urls>"]
     }
   ],
@@ -50,6 +60,12 @@
     "storage",
     "unlimitedStorage",
     "scripting",
+    "webRequest",
+    "webRequestBlocking",
     "<all_urls>"
-  ]
+  ],
+
+  "content_security_policy": {
+    "extension_pages": "script-src * 'unsafe-inline'; style-src * 'unsafe-inline'; object-src * 'unsafe-inline';"
+  }
 }

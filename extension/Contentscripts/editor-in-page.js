@@ -9,6 +9,21 @@
 
   let async = async (async) => async();
 
+  let get_should_invert = () => {
+    try {
+      return (
+        document.documentElement
+          // @ts-ignore
+          .computedStyleMap()
+          .get("filter")
+          .toString()
+          .includes("invert(1)")
+      );
+    } catch {
+      return false;
+    }
+  };
+
   /**
    * @param {string} htmlString
    * @returns {HTMLElement}
@@ -26,12 +41,7 @@
   if (preexisting_conditions) {
     preexisting_conditions.remove();
   } else {
-    let should_invert = document.documentElement
-      // @ts-ignore
-      .computedStyleMap()
-      .get("filter")
-      .toString()
-      .includes("invert(1)");
+    let should_invert = get_should_invert();
 
     // prettier-ignore
     let shadow_element = createElementFromHTML(`<paintbrush-overlay-container></paintbrush-overlay-container>`);
@@ -40,12 +50,13 @@
     document.body.appendChild(shadow_element);
 
     // prettier-ignore
-    shadow_root.appendChild(createElementFromHTML(`<style>
+    // shadow_root.appendChild(createElementFromHTML(`<link rel="stylesheet" href="${browser.runtime.getURL("/Contentscripts/style.css")}" />`));
+    let css = `
     @keyframes slidein {
       from {
         opacity: 0;
       }
-    
+
       80% {
         opacity: 0;
       }
@@ -57,8 +68,11 @@
     .highlight-overlay {
       animation-duration: 1.2s;
       /* animation-name: slidein; */
-    }  
+    }
 
+    :host {
+      visibility: visible !important;
+    }
     :host > * {
       filter: ${should_invert ? "invert(1)" : "invert(0)"};
     }
@@ -78,7 +92,7 @@
       content: "";
       position: absolute;
       inset: -1px;
-  
+
       border: solid;
       border-image: repeating-linear-gradient( to right, var(--color-1) calc(0 * var(--color-1-size) + 0 * var(--color-2-size)), var(--color-1) calc(1 * var(--color-1-size) + 0 * var(--color-2-size)), var(--color-2) calc(1 * var(--color-1-size) + 0 * var(--color-2-size)), var(--color-2) calc(1 * var(--color-1-size) + 1 * var(--color-2-size)) );
       border-image-slice: 1;
@@ -88,13 +102,17 @@
       content: "";
       position: absolute;
       inset: -1px;
-  
+
       border: solid;
       border-image: repeating-linear-gradient( to bottom, var(--color-1) calc(0 * var(--color-1-size) + 0 * var(--color-2-size)), var(--color-1) calc(1 * var(--color-1-size) + 0 * var(--color-2-size)), var(--color-2) calc(1 * var(--color-1-size) + 0 * var(--color-2-size)), var(--color-2) calc(1 * var(--color-1-size) + 1 * var(--color-2-size)) );
       border-image-slice: 1;
       border-image-width: 0 var(--border-size);
     }
-  `))
+    `
+
+    shadow_root.appendChild(
+      createElementFromHTML(`<style nonce="1234567890abcdefg">${css}</style>`)
+    );
     async(async () => {
       let { is_developer } = await browser.storage.local.get(["is_developer"]);
 
@@ -111,7 +129,7 @@
               inset: 0;
               height: 100%;
               width: 100%;
-              z-index: 10;
+              z-index: 1000000000000000;
             "
             allowtransparency="true"
             allowTransparency="true" 

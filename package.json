@@ -9,6 +9,7 @@
     "packages/*"
   ],
   "scripts": {
+    "build:editor": "rm extension/in-page-editor-build && (cd paintbrush-in-page-editor; npx vite build) && mv paintbrush-in-page-editor/dist extension/in-page-editor-build",
     "build": "(cd extension; zip -r ../extension.zip .)",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "web-ext run -s extension --url \"https://youtu.be/Yocja_N5s1I\""
