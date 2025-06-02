@@ -3,7 +3,17 @@
   const browser = /** @type {import("webextension-polyfill-ts").Browser} */ (globalThis.browser);
 
   let host = window.location.host;
-  let { [host]: css } = await browser.storage.local.get([host]);
+
+  // let css = await browser.runtime.sendMessage({
+  //   action: "get-css",
+  //   host,
+  // });
+  let p = `host-${host}`;
+  console.log(`p:`, p);
+  let { [`host-${host}`]: css } = await browser.storage.local.get([
+    `host-${host}`,
+  ]);
+  console.log(`css:`, css);
 
   if (css == null) {
     return;

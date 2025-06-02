@@ -50,69 +50,8 @@
     document.body.appendChild(shadow_element);
 
     // prettier-ignore
-    // shadow_root.appendChild(createElementFromHTML(`<link rel="stylesheet" href="${browser.runtime.getURL("/Contentscripts/style.css")}" />`));
-    let css = `
-    @keyframes slidein {
-      from {
-        opacity: 0;
-      }
+    shadow_root.appendChild(createElementFromHTML(`<link rel="stylesheet" href="${browser.runtime.getURL("/Contentscripts/style.css")}" />`));
 
-      80% {
-        opacity: 0;
-      }
-
-      to {
-        opacity: 1;
-      }
-    }
-    .highlight-overlay {
-      animation-duration: 1.2s;
-      /* animation-name: slidein; */
-    }
-
-    :host {
-      visibility: visible !important;
-    }
-    :host > * {
-      filter: ${should_invert ? "invert(1)" : "invert(0)"};
-    }
-
-    .highlight-overlay, .highlight-overlay:before, .highlight-overlay:after {
-      --border-size: 2px;
-      --color-1-size: 10px;
-      --color-2-size: 10px;
-      --color-1: black;
-      --color-2: white;
-    }
-    .highlight-overlay {
-      background-color: rgb(123 201 255 / 52%);
-      pointer-events: none;
-    }
-    .highlight-overlay:before {
-      content: "";
-      position: absolute;
-      inset: -1px;
-
-      border: solid;
-      border-image: repeating-linear-gradient( to right, var(--color-1) calc(0 * var(--color-1-size) + 0 * var(--color-2-size)), var(--color-1) calc(1 * var(--color-1-size) + 0 * var(--color-2-size)), var(--color-2) calc(1 * var(--color-1-size) + 0 * var(--color-2-size)), var(--color-2) calc(1 * var(--color-1-size) + 1 * var(--color-2-size)) );
-      border-image-slice: 1;
-      border-image-width: var(--border-size) 0;
-    }
-    .highlight-overlay:after {
-      content: "";
-      position: absolute;
-      inset: -1px;
-
-      border: solid;
-      border-image: repeating-linear-gradient( to bottom, var(--color-1) calc(0 * var(--color-1-size) + 0 * var(--color-2-size)), var(--color-1) calc(1 * var(--color-1-size) + 0 * var(--color-2-size)), var(--color-2) calc(1 * var(--color-1-size) + 0 * var(--color-2-size)), var(--color-2) calc(1 * var(--color-1-size) + 1 * var(--color-2-size)) );
-      border-image-slice: 1;
-      border-image-width: 0 var(--border-size);
-    }
-    `
-
-    shadow_root.appendChild(
-      createElementFromHTML(`<style nonce="1234567890abcdefg">${css}</style>`)
-    );
     async(async () => {
       let { is_developer } = await browser.storage.local.get(["is_developer"]);
 
@@ -123,16 +62,7 @@
         createElementFromHTML(`
           <iframe
             border="0"
-            style="
-              border: none;
-              position: fixed;
-              inset: 0;
-              height: 100%;
-              width: 100%;
-              z-index: 1000000000000000;
-            "
             allowtransparency="true"
-            allowTransparency="true" 
             src="${get_url("index.html")}"
           />
         `)
@@ -187,13 +117,27 @@
         } else if (message.data?.type === "save") {
           console.debug("MESSAGE FROM EDITOR:", "save");
           let host = window.location.host;
-          browser.storage.local.set({ [host]: message.data?.cells });
+
+          browser.runtime.sendMessage({
+            action: "put-css",
+            host: host,
+            cells: message.data?.cells,
+          });
         } else if (message.data?.type === "load") {
           console.debug("MESSAGE FROM EDITOR:", "load");
           let host = window.location.host;
-          browser.storage.local.get([host]).then(({ [host]: cells }) => {
-            contentWindow.postMessage({ type: "load", cells }, "*");
-          });
+          // browser.storage.local.get([host]).then(({ [host]: cells }) => {
+          //   contentWindow.postMessage({ type: "load", cells }, "*");
+          // });
+          browser.runtime
+            .sendMessage({
+              action: "get-css",
+              host: host,
+            })
+            .then((cells) => {
+              console.log(`cells:`, cells);
+              contentWindow.postMessage({ type: "load", cells }, "*");
+            });
         } else if (message.data?.type === "toggle-horizontal-position") {
           console.debug("MESSAGE FROM EDITOR:", "toggle-horizontal-position");
           if (injection.style.right !== "") {

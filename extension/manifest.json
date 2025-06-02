@@ -55,6 +55,7 @@
 
   "host_permissions": ["*://*/*"],
   "permissions": [
+    "identity",
     "tabs",
     "contextMenus",
     "storage",
