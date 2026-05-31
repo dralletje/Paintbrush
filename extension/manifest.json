@@ -64,9 +64,5 @@
     "webRequest",
     "webRequestBlocking",
     "<all_urls>"
-  ],
-
-  "content_security_policy": {
-    "extension_pages": "script-src * 'unsafe-inline'; style-src * 'unsafe-inline'; object-src * 'unsafe-inline';"
-  }
+  ]
 }

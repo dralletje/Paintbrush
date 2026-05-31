@@ -8,13 +8,9 @@
   //   action: "get-css",
   //   host,
   // });
-  let p = `host-${host}`;
-  console.log(`p:`, p);
   let { [`host-${host}`]: css } = await browser.storage.local.get([
     `host-${host}`,
   ]);
-  console.log(`css:`, css);
-
   if (css == null) {
     return;
   }
